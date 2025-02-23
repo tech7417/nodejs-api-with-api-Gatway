@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  auth-service:
+    build:
+      context: ./auth-service
+      dockerfile: Dockerfile
+    ports:
+      - "5002:5000"  # External port (5002), Internal port (5000)
+    expose:
+      - "5000"  # Internal Docker network port
+    environment:
+      MONGODB_URI: "mongodb://mongodb:27017/microservices-api-auth"
+      SECRET_KEY: "my_node_js_app_with"
+    networks:
+      - microservices-net
+
+  mongodb:
+    image: mongo
+    ports:
+      - "27018:27017"
+    volumes:
+      - mongo-data:/data/db
+    networks:
+      - microservices-net
+
+volumes:
+  mongo-data:
+
+networks:
+  microservices-net:
+    external: true
