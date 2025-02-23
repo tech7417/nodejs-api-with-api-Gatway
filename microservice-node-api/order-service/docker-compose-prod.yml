@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+  order-service:
+    build:
+      context: ./order-service
+      dockerfile: Dockerfile
+    depends_on:
+      - redis
+    ports:
+      - "7000:7000"
+    environment:
+      MONGODB_URI: "mongodb://mongodb:27017/microservices-api-order"
+      REDIS_HOST: "redis"
+      SECRET_KEY: "my_node_js_app_with"
+      AUTH_SERVICE_URL: "http://auth-service:5000/api/v1/auth/users/"  # Internal service name
+    networks:
+      - microservices-net
+
+  redis:
+    image: redis
+    ports:
+      - "6380:6379"
+    networks:
+      - microservices-net
+
+networks:
+  microservices-net:
+    external: true
