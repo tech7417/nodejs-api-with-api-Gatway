@@ -26,4 +26,5 @@ services:
 
 networks:
   microservices-net:
+  
     external: true
