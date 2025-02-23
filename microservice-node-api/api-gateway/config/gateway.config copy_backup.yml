@@ -1,0 +1,47 @@
+http:
+  port: 3000  # API Gateway will run on port 3000
+
+apiEndpoints:
+  auth:
+    host: '*'
+    paths: /api/v1/*  # Match all routes under /v1/
+  product:
+    host: '*'
+    paths: /api/v1/*  # Match all routes under /api/products/
+
+serviceEndpoints:
+  authService:
+    url: http://localhost:5000  # User Service (Auth)
+  productService:
+    url: http://localhost:6000  # Product Service
+
+policies:
+  - cors
+  - jwt
+  - proxy
+
+pipelines:
+  authPipeline:
+    apiEndpoints:
+      - auth
+    policies:
+      - cors:
+          - action:
+              origin: '*'
+              methods: 'GET,HEAD,PUT,PATCH,POST,DELETE'
+      - proxy:
+          - action:
+              serviceEndpoint: authService
+              changeOrigin: true
+
+  productPipeline:
+    apiEndpoints:
+      - product
+    policies:
+      - jwt:
+          - action:
+              secretOrPublicKey: 'my_node_js_app_with'  # JWT Authentication
+      - proxy:
+          - action:
+              serviceEndpoint: productService
+              changeOrigin: true

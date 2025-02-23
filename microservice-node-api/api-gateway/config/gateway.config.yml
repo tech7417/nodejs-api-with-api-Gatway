@@ -1,0 +1,74 @@
+http:
+  port: 3000  # API Gateway runs on port 3000
+
+apiEndpoints:
+  auth:
+    host: '*'
+    paths: /api/v1/auth/*  # Match all routes under /v1/auth/
+  product:
+    host: '*'
+    paths: /api/v1/product/*  # Match all routes under /v1/product/
+  order:
+    host: '*'
+    paths: /api/v1/order/*  # Match all routes under /v1/order/
+
+serviceEndpoints:
+  authService:
+    url: http://localhost:5000  # Auth Service (login, signup)
+  productService:
+    url: http://localhost:6000  # Product Service (product management)
+  orderService:
+    url: http://localhost:7000  # Order Service (this will handle /api/v1/order/*)
+
+policies:
+  - cors
+  - jwt
+  - proxy
+
+pipelines:
+  authPipeline:
+    apiEndpoints:
+      - auth
+    policies:
+      - cors:
+          action:
+            origin: '*'
+            methods: 'GET,HEAD,PUT,PATCH,POST,DELETE'
+      - proxy:
+          action:
+            serviceEndpoint: authService
+            changeOrigin: true
+
+  productPipeline:
+    apiEndpoints:
+      - product
+    policies:
+      - proxy:
+          action:
+            serviceEndpoint: productService
+            changeOrigin: true
+      - jwt:
+          action:
+            secretOrPublicKey: 'my_node_js_app_with'
+            credentialsRequired: true
+            authScheme: Bearer
+            requestProperty: user
+            applyTo:
+              - GET /api/v1/  # Protect the product route with JWT
+
+  orderPipeline:
+    apiEndpoints:
+      - order
+    policies:
+      - proxy:
+          action:
+            serviceEndpoint: orderService
+            changeOrigin: true  # Forward requests to order service (port 7000)
+      - jwt:
+          action:
+            secretOrPublicKey: 'my_node_js_app_with'
+            credentialsRequired: true
+            authScheme: Bearer
+            requestProperty: user
+            applyTo:
+              - GET /api/v1/order/*  # Protect order routes with JWT
