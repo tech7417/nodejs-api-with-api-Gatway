@@ -1,0 +1,19 @@
+version: '3.8'
+
+services:
+  auth-user-service:
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    ports:
+      - "6767:6767"  # External port 6767, Internal port 6767
+    environment:
+      MONGODB_URI: "mongodb+srv://my-node-js-api:my-node-js-api@cluster0.pzygx.mongodb.net/microservices-auth-api?retryWrites=true&w=majority"
+      SECRET_KEY: "my_node_js_app_with"
+    networks:
+      - microservices-net-auth
+
+networks:
+  microservices-net-auth:
+    driver: bridge
+    external: true
