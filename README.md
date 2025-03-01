@@ -225,7 +225,7 @@ services:
     depends_on:
       - mongodb
     environment:
-      MONGODB_URI: "mongodb+srv://your-user:your-password@cluster0.mongodb.net/microservices-auth-api"
+      MONGODB_URI: "mongodb+srv://<db_username>:<db_password>@<cluster_name>/<table_name>"
       SECRET_KEY: "my_secret_key"
     networks:
       - microservices-net
